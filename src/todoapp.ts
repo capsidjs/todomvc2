@@ -25,6 +25,15 @@ class TodoApp {
 	@wired('.footer')
 	footer: HTMLElement;
 
+	@wired('.todo-count strong')
+	todoCount: HTMLElement;
+
+	@wired('.todo-count .plural')
+	todoCountPlural: HTMLElement;
+
+	@wired('.clear-completed')
+	clearCompletedButton: HTMLButtonElement;
+
 	constructor() {
 		this.todos = new TodoCollection();
 		this.filter = 'all';
@@ -58,11 +67,42 @@ class TodoApp {
 		this.todos.getById(e.target.parentElement.parentElement.id)?.toggle();
 	}
 
+	@emits('update-todo')
+	@on.click.at('.toggle-all')
+	toggleAll(e) {
+		if (e.target.checked) {
+			this.todos.completeAll();
+		} else {
+			this.todos.uncompleteAll();
+		}
+	}
+
+	@emits('update-todo')
+	@on.click.at('.destroy')
+	destroy(e) {
+		const toRemove = this.todos.getById(e.target.parentElement.parentElement.id);
+		this.todos.remove(toRemove);
+	}
+
+	@emits('update-todo')
+	@on.click.at('.clear-completed')
+	clearCompleted() {
+		this.todos.completed().forEach((todo) => {
+			this.todos.remove(todo);
+		});
+	}
+
 	@on('update-todo')
 	onUpdateTodo() {
+		const uncompleted = this.todos.uncompleted();
+		const completed = this.todos.completed();
+		this.todoCount.textContent = `${uncompleted.length}`;
+		this.todoCountPlural.classList.toggle('hidden', uncompleted.length === 1);
 		this.footer.classList.toggle('hidden', this.todos.length === 0);
 		this.toggleAllCheckbox.classList.toggle('hidden', this.todos.length === 0);
 		this.toggleAllLabel.classList.toggle('hidden', this.todos.length === 0);
+		this.toggleAllCheckbox.checked = uncompleted.length === 0;
+		this.clearCompletedButton.classList.toggle('hidden', completed.length === 0);
 		if (
 			this.filter === 'all' &&
 			this.todos.length === this.todoList.children.length

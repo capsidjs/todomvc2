@@ -24,7 +24,7 @@ export class TodoCollection {
 	}
 
 	remove(toRemove: Todo): void {
-		this.todos = this.todos.filter((todo) => todo.id === toRemove.id);
+		this.todos = this.todos.filter((todo) => todo.id !== toRemove.id);
 	}
 
 	add(todo: Todo): void {
