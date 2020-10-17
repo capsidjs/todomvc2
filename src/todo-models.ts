@@ -5,11 +5,11 @@ export class Todo {
 	constructor(
 		public id: string,
 		public title: string,
-		public completed: boolean,
+		public completed: boolean
 	) {}
 
 	toggle() {
-		this.completed = !this.completed
+		this.completed = !this.completed;
 	}
 }
 
@@ -20,46 +20,46 @@ export class TodoCollection {
 	constructor(public todos: Todo[] = []) {}
 
 	getById(id: string): Todo | null {
-		return this.todos.find((todo) => todo.id === id)
+		return this.todos.find((todo) => todo.id === id);
 	}
 
 	remove(toRemove: Todo): void {
-		this.todos = this.todos.filter((todo) => todo.id === toRemove.id)
+		this.todos = this.todos.filter((todo) => todo.id === toRemove.id);
 	}
 
 	add(todo: Todo): void {
-		this.todos.push(todo)
+		this.todos.push(todo);
 	}
 
 	get length(): number {
-		return this.todos.length
+		return this.todos.length;
 	}
 
 	has(test: Todo): boolean {
-		return this.todos.some((todo) => todo.id === test.id)
+		return this.todos.some((todo) => todo.id === test.id);
 	}
 
 	completed(): TodoCollection {
-		return new TodoCollection(this.todos.filter((todo) => todo.completed))
+		return new TodoCollection(this.todos.filter((todo) => todo.completed));
 	}
 
 	uncompleted(): TodoCollection {
-		return new TodoCollection(this.todos.filter((todo) => !todo.completed))
+		return new TodoCollection(this.todos.filter((todo) => !todo.completed));
 	}
 
 	completeAll(): void {
 		this.todos.forEach((todo) => {
-			todo.completed = true
-		})
+			todo.completed = true;
+		});
 	}
 
 	uncompleteAll(): void {
 		this.todos.forEach((todo) => {
-			todo.completed = false
-		})
+			todo.completed = false;
+		});
 	}
 
-	forEach(f: Todo => void): void {
-		this.todos.forEach(f)
+	forEach(f: (todo: Todo) => void): void {
+		this.todos.forEach(f);
 	}
 }
