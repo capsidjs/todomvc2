@@ -31,16 +31,31 @@ class TodoApp {
 	@wired('.todo-count .plural')
 	todoCountPlural: HTMLElement;
 
+	@wired('a[href="#/all"]')
+	allFilterButton: HTMLElement;
+
+	@wired('a[href="#/active"]')
+	activeFilterButton: HTMLElement;
+
+	@wired('a[href="#/completed"]')
+	completedFilterButton: HTMLElement;
+
 	@wired('.clear-completed')
 	clearCompletedButton: HTMLButtonElement;
 
 	constructor() {
 		this.todos = new TodoCollection();
 		this.filter = 'all';
+
+		window.onhashchange = () => {
+			this.onChangeFilter();
+		};
 	}
 
 	@emits('update-todo')
-	__mount__() {}
+	__mount__() {
+		this.onChangeFilter();
+	}
 
 	@on('keypress', { at: '.new-todo' })
 	onNewTodoInput(e: Event) {
@@ -94,6 +109,31 @@ class TodoApp {
 		});
 	}
 
+	getFilterFromString(str: string): Filter {
+		switch (str) {
+			case 'active':
+				return 'active';
+			case 'completed':
+				return 'completed';
+			default:
+				return 'all';
+		}
+	}
+
+	@emits('update-todo')
+	onChangeFilter() {
+		this.filter = this.getFilterFromString(location.hash.slice(2));
+		this.allFilterButton.classList.toggle('selected', this.filter === 'all');
+		this.activeFilterButton.classList.toggle(
+			'selected',
+			this.filter === 'active'
+		);
+		this.completedFilterButton.classList.toggle(
+			'selected',
+			this.filter === 'completed'
+		);
+	}
+
 	@on('update-todo')
 	onUpdateTodo() {
 		const uncompleted = this.todos.uncompleted();
@@ -119,8 +159,14 @@ class TodoApp {
 				li.querySelector('.toggle').checked = todo.completed;
 			});
 		} else {
+			const visibleItems =
+				this.filter === 'active'
+					? uncompleted
+					: this.filter === 'completed'
+					? completed
+					: this.todos;
 			this.todoList.innerHTML = '';
-			this.todos.forEach((todo) => {
+			visibleItems.forEach((todo) => {
 				const li = document.createElement('li');
 				li.innerHTML = `
 					<div class="view">
