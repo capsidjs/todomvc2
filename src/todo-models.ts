@@ -13,6 +13,8 @@ export class Todo {
 	}
 }
 
+const KEY = 'capsidjs-todomvc2'
+
 /**
  * TodoCollection represents a collection of Todos.
  */
@@ -61,5 +63,25 @@ export class TodoCollection {
 
 	forEach(f: (todo: Todo) => void): void {
 		this.todos.forEach(f);
+	}
+
+	toJSON(): string {
+		return JSON.stringify(this.todos);
+	}
+
+	static fromJson(json: string) {
+		return new TodoCollection(JSON.parse(json).map(({ id, title, completed }) => new Todo(id, title, completed)))
+	}
+
+	save() {
+		localStorage[KEY] = this.toJSON();
+	}
+
+	static restore(): TodoCollection {
+		return TodoCollection.fromJson(localStorage[KEY] || '[]')
+	}
+
+	maxId() {
+		return Math.max(0, ...this.todos.map((todo) => +todo.id));
 	}
 }

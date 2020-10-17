@@ -44,7 +44,8 @@ class TodoApp {
 	clearCompletedButton: HTMLButtonElement;
 
 	constructor() {
-		this.todos = new TodoCollection();
+		this.todos = TodoCollection.restore();
+		id = this.todos.maxId() + 1;
 		this.filter = 'all';
 
 		window.onhashchange = () => {
@@ -109,6 +110,29 @@ class TodoApp {
 		});
 	}
 
+	@on('dblclick', { at: '.todo > .view > label' })
+	startEditing(e) {
+		const todoItem = e.target.parentElement.parentElement
+		const todo = this.todos.getById(todoItem.id);
+		todoItem.classList.add('editing');
+		const editInput = todoItem.querySelector('.edit')
+		editInput.value = todo.title
+		editInput.focus();
+	}
+
+	@on('keypress', { at: '.edit' })
+	@on('keydown', { at: '.edit' })
+	onCancelOrFinishEditing(e) {
+		const todoItem = e.target.parentElement;
+		if (e.which === 13/* ENTER */) {
+			this.todos.getById(todoItem.id).title = e.target.value;
+			todoItem.classList.remove('editing');
+			this.onUpdateTodo();
+		} else if (e.which === 27/* ESC */) {
+			todoItem.classList.remove('editing');
+		}
+	}
+
 	getFilterFromString(str: string): Filter {
 		switch (str) {
 			case 'active':
@@ -136,6 +160,7 @@ class TodoApp {
 
 	@on('update-todo')
 	onUpdateTodo() {
+		this.todos.save();
 		const uncompleted = this.todos.uncompleted();
 		const completed = this.todos.completed();
 		this.todoCount.textContent = `${uncompleted.length}`;
