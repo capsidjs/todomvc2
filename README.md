@@ -1,5 +1,2 @@
-# TodoMVC of [capsid.js](https://github.com/capsidjs/capsid).
+# [Capsid.js](https://github.com/capsidjs/capsid) • [TodoMVC](http://todomvc.com)
 
-# License
-
-MIT
