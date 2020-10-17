@@ -80,7 +80,9 @@ class TodoApp {
 	@emits('update-todo')
 	@on.click.at('.destroy')
 	destroy(e) {
-		const toRemove = this.todos.getById(e.target.parentElement.parentElement.id);
+		const toRemove = this.todos.getById(
+			e.target.parentElement.parentElement.id
+		);
 		this.todos.remove(toRemove);
 	}
 
@@ -102,7 +104,10 @@ class TodoApp {
 		this.toggleAllCheckbox.classList.toggle('hidden', this.todos.length === 0);
 		this.toggleAllLabel.classList.toggle('hidden', this.todos.length === 0);
 		this.toggleAllCheckbox.checked = uncompleted.length === 0;
-		this.clearCompletedButton.classList.toggle('hidden', completed.length === 0);
+		this.clearCompletedButton.classList.toggle(
+			'hidden',
+			completed.length === 0
+		);
 		if (
 			this.filter === 'all' &&
 			this.todos.length === this.todoList.children.length
