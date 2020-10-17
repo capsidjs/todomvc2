@@ -13,7 +13,7 @@ export class Todo {
 	}
 }
 
-const KEY = 'capsidjs-todomvc2'
+const KEY = 'capsidjs-todomvc2';
 
 /**
  * TodoCollection represents a collection of Todos.
@@ -70,7 +70,11 @@ export class TodoCollection {
 	}
 
 	static fromJson(json: string) {
-		return new TodoCollection(JSON.parse(json).map(({ id, title, completed }) => new Todo(id, title, completed)))
+		return new TodoCollection(
+			JSON.parse(json).map(
+				({ id, title, completed }) => new Todo(id, title, completed)
+			)
+		);
 	}
 
 	save() {
@@ -78,7 +82,7 @@ export class TodoCollection {
 	}
 
 	static restore(): TodoCollection {
-		return TodoCollection.fromJson(localStorage[KEY] || '[]')
+		return TodoCollection.fromJson(localStorage[KEY] || '[]');
 	}
 
 	maxId() {

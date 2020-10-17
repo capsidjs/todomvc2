@@ -112,11 +112,11 @@ class TodoApp {
 
 	@on('dblclick', { at: '.todo > .view > label' })
 	startEditing(e) {
-		const todoItem = e.target.parentElement.parentElement
+		const todoItem = e.target.parentElement.parentElement;
 		const todo = this.todos.getById(todoItem.id);
 		todoItem.classList.add('editing');
-		const editInput = todoItem.querySelector('.edit')
-		editInput.value = todo.title
+		const editInput = todoItem.querySelector('.edit');
+		editInput.value = todo.title;
 		editInput.focus();
 	}
 
@@ -124,11 +124,11 @@ class TodoApp {
 	@on('keydown', { at: '.edit' })
 	onCancelOrFinishEditing(e) {
 		const todoItem = e.target.parentElement;
-		if (e.which === 13/* ENTER */) {
+		if (e.which === 13 /* ENTER */) {
 			this.todos.getById(todoItem.id).title = e.target.value;
 			todoItem.classList.remove('editing');
 			this.onUpdateTodo();
-		} else if (e.which === 27/* ESC */) {
+		} else if (e.which === 27 /* ESC */) {
 			todoItem.classList.remove('editing');
 		}
 	}
