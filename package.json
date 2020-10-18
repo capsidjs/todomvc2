@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo TODO",
-    "clean": "rimraf dist",
+    "clean": "rimraf docs",
     "start": "parcel --port 8000 index.html",
-    "build": "parcel build --public-url . index.html",
+    "build": "parcel build --public-url . --out-dir docs index.html",
     "dist": "npm run clean && npm run build",
     "fmt": "prettier --single-quote --use-tabs --write src index.html"
   },
