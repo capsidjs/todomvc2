@@ -2,159 +2,12 @@
  * from TodoMVC's cypress tests
  * https://github.com/tastejs/todomvc/blob/d698282/cypress/integration/spec.js
  */
-// ***********************************************
-// All of these tests are written to implement
-// the official TodoMVC tests written for Selenium.
-//
-// The Cypress tests cover the exact same functionality,
-// and match the same test names as TodoMVC.
-// Please read our getting started guide
-// https://on.cypress.io/introduction-to-cypress
-//
-// You can find the original TodoMVC tests here:
-// https://github.com/tastejs/todomvc/blob/master/tests/test.js
-// ***********************************************
-
 import { createTodoCommands } from '../command'
 
-/* global cy, Cypress */
-const framework = 'capsid'
-if (!framework) {
-  throw new Error(
-    `
-    Please specify the framework name to test.
-    See folder names in the /examples.
-
-      cypress open --env framework=react
-
-    Or pass framework name through environment variable
-
-      CYPRESS_framework=angular-dart/web cypress open
-  `
-  )
-}
-
-const frameworkFolders = {
-  ampersand: 'ampersand/',
-  'angular-dart': 'angular-dart/web',
-  'chaplin-brunch': 'chaplin-brunch/public',
-  duel: 'duel/www',
-}
-const getExampleFolder = framework => frameworkFolders[framework] || framework
-
-const noLocalStorageCheck = {
-  backbone: true,
-  backbone_marionette: true,
-  backbone_require: true,
-  knockback: true,
-  flight: true,
-  serenadejs: true,
-  js_of_ocaml: true,
-  reagent: true,
-  rappidjs: true,
-  exoskeleton: true,
-  'react-backbone': true,
-  puremvc: true,
-  'typescript-backbone': true,
-  enyo_backbone: true,
-  foam: true
-}
-
-const noLocalStorageSpyCheck = {
-  canjs: true,
-  canjs_require: true
-}
-
-const noAppStartCheck = {
-  mithril: true
-}
-
-// usually when an app makes localStorage.setItem call we think
-// it is ready to work. But some apps are so slow, that the DOM
-// is well behind the data model. For these apps, do not consider
-// intercepted localStorage.setItem a signal
-const storageSetDoesNotMeanAppStarted = {
-  flight: true,
-  olives: true
-}
-
-// some apps serialize data in such a bad way that we cannot
-// check localStorage for keywords like "complete" or "isComplete"
-const badLocalStorageFormat = {
-  js_of_ocaml: true
-}
-
-// some frameworks really rely on "blur" event
-// to know when typing has finished
-const blurAfterType = {
-  ampersand: true,
-  dijon: true,
-  duel: true,
-  jquery: true,
-  vanillajs: true,
-  'vanilla-es6': true
-}
-
-// add after typing if `...{enter}` is not enough for some frameworks
-// cy.type('{enter}').then(safeBlur)
-const safeBlur = $el => {
-  if (blurAfterType[framework]) {
-    const event = new Event('blur', {force: true})
-    $el.get(0).dispatchEvent(event)
-  }
-}
-
-// Some frameworks need to avoid runtime determination of selector type.
-const usesIDSelectors = {
-  polymer: false
-}
-
-const title = `TodoMVC - ${framework}`
-
-function skipTestsWithKnownIssues () {
-  // TODO find how to REALLY skip tests - currently does not
-  // take suite chain into account, thus just hides the
-  // tests with known issues
-  const removeCommas = s => s.replace(/,/g, '')
-  const issueNames = []
-    .map(Cypress._.toLower)
-    .filter(name => name.includes(framework))
-    .map(removeCommas)
-  console.log('framework %s has %d issue(s)', framework, issueNames.length)
-
-  const realIt = window.it
-  window.it = function (name, cb) {
-    if (typeof name === 'function') {
-      // using it(cb) form without title
-      cb = name
-      name = cb.name
-    }
-    if (!cb) {
-      // nothing to do - skipped test, just title
-      return
-    }
-    name = name.toLowerCase()
-    const issue = issueNames.find(issueName => issueName.endsWith(name))
-    if (issue) {
-      console.log('test "%s" has a known issue', name)
-      return realIt.skip(name, cb)
-    } else {
-      return realIt.apply(null, arguments)
-    }
-  }
-  window.it.skip = realIt.skip
-  window.it.only = realIt.only
-}
-skipTestsWithKnownIssues()
+const title = `TodoMVC - capsid`
 
 // checks that local storage has an item with given text
 const checkTodosInLocalStorage = (presentText, force) => {
-  if (noLocalStorageCheck[framework]) {
-    if (!force) {
-      return
-    }
-  }
-
   cy.log(`Looking for "${presentText}" in localStorage`)
 
   return cy.window().its('localStorage').then(storage => {
@@ -178,10 +31,6 @@ const checkTodosInLocalStorage = (presentText, force) => {
 }
 
 const checkCompletedKeywordInLocalStorage = () => {
-  if (badLocalStorageFormat[framework]) {
-    return
-  }
-
   cy.log(`Looking for any completed items in localStorage`)
 
   const variants = ['complete', 'isComplete']
@@ -210,10 +59,6 @@ const checkCompletedKeywordInLocalStorage = () => {
 }
 
 const checkNumberOfTodosInLocalStorage = n => {
-  if (noLocalStorageCheck[framework]) {
-    return
-  }
-
   cy.log(`localStorage should have ${n} todo items`)
 
   return cy.window().its('localStorage').then(storage => {
@@ -245,10 +90,6 @@ const checkNumberOfTodosInLocalStorage = n => {
 }
 
 const checkNumberOfCompletedTodosInLocalStorage = n => {
-  if (noLocalStorageCheck[framework]) {
-    return
-  }
-
   cy.log(`Looking for "${n}" completed items in localStorage`)
 
   return cy.window().its('localStorage').then(storage => {
@@ -350,9 +191,6 @@ Cypress._.times(N, () => {
       cy.get(selectors.todoItems).should('have.length', 0)
 
     const checkItemSaved = () => {
-      if (noLocalStorageSpyCheck[framework]) {
-        return
-      }
       cy.wrap(localStorageSetItem, {log: false})
         .should('have.been.called')
       cy.wrap(localStorageSetItem, {log: false}).invoke('reset')
@@ -377,7 +215,6 @@ Cypress._.times(N, () => {
       // https://on.cypress.io/api/visit
       currentTestId = Math.random()
       let appHasStarted = false
-      const folder = getExampleFolder(framework)
       cy
         .visit('/', {
           onBeforeLoad: win => {
@@ -391,9 +228,7 @@ Cypress._.times(N, () => {
               }
               // if something has made localStorage.setItem call -
               // that means app has started
-              if (!storageSetDoesNotMeanAppStarted[framework]) {
-                appHasStarted = true
-              }
+              appHasStarted = true
 
               return setItem.call(win.localStorage, name, value)
             }.bind(null, currentTestId)
@@ -403,16 +238,6 @@ Cypress._.times(N, () => {
 
             // detect when a web application starts by noticing
             // the first "addEventListener" to text input events
-
-            // exceptions:
-            // mithril attaches handlers directly to the elements
-            // like this
-            //   node[attrName] = autoredraw(dataAttr, node)
-            // so for now assume framework has started
-            if (noAppStartCheck[framework]) {
-              appHasStarted = true
-              return
-            }
 
             const addListener = win.EventTarget.prototype.addEventListener
             win.EventTarget.prototype.addEventListener = function (name) {
@@ -450,10 +275,7 @@ Cypress._.times(N, () => {
       // same tests - because our assertions often use `.should('have.class', ...)`
       cy.contains('h1', 'todos').should('be.visible')
       cy.document().then(doc => {
-        if (framework in usesIDSelectors) {
-          setSelectors(usesIDSelectors[framework])
-          createTodoCommands(usesIDSelectors[framework])
-        } else if (doc.querySelector('input#new-todo') && doc.querySelector('input.new-todo')) {
+        if (doc.querySelector('input#new-todo') && doc.querySelector('input.new-todo')) {
           throw new Error(
             'Cannot determine what kind of selectors this app uses. Add it to usesIDSelectors.'
           )
