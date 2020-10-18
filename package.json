@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo TODO",
-    "start": "parcel --port 3004 index.html",
+    "start": "parcel --port 8000 index.html",
     "fmt": "prettier --single-quote --use-tabs --write src index.html"
   },
   "repository": {

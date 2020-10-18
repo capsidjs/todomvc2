@@ -78,11 +78,11 @@ export class TodoCollection {
 	}
 
 	save() {
-		localStorage[KEY] = this.toJSON();
+		localStorage.setItem(KEY, this.toJSON());
 	}
 
 	static restore(): TodoCollection {
-		return TodoCollection.fromJson(localStorage[KEY] || '[]');
+		return TodoCollection.fromJson(localStorage.getItem(KEY) || '[]');
 	}
 
 	maxId() {

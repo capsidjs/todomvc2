@@ -13,6 +13,9 @@ class TodoApp {
 	@wired('.new-todo')
 	newTodoInput: HTMLInputElement;
 
+	@wired('.main')
+	mainArea: HTMlSectionElement;
+
 	@wired('.todo-list')
 	todoList: HTMLUListElement;
 
@@ -123,12 +126,27 @@ class TodoApp {
 	@on('keypress', { at: '.edit' })
 	@on('keydown', { at: '.edit' })
 	onCancelOrFinishEditing(e) {
-		const todoItem = e.target.parentElement;
 		if (e.which === 13 /* ENTER */) {
-			this.todos.getById(todoItem.id).title = e.target.value;
-			todoItem.classList.remove('editing');
-			this.onUpdateTodo();
+			e.target.blur();
 		} else if (e.which === 27 /* ESC */) {
+			e.target.value = this.todos.getById(e.target.parentElement.id).title;
+			e.target.blur();
+		}
+	}
+
+	@on('focusout', { at: '.edit' })
+	onFocusOut(e) {
+		this.finishEditing(e.target.value, e.target.parentElement);
+	}
+
+	@emits('update-todo')
+	finishEditing(value: string, todoItem: HTMLElement) {
+		value = value.trim();
+		if (value) {
+			this.todos.getById(todoItem.id).title = value;
+			todoItem.classList.remove('editing');
+		} else {
+			this.todos.remove(this.todos.getById(todoItem.id));
 			todoItem.classList.remove('editing');
 		}
 	}
@@ -165,6 +183,7 @@ class TodoApp {
 		const completed = this.todos.completed();
 		this.todoCount.textContent = `${uncompleted.length}`;
 		this.todoCountPlural.classList.toggle('hidden', uncompleted.length === 1);
+		this.mainArea.classList.toggle('hidden', this.todos.length === 0);
 		this.footer.classList.toggle('hidden', this.todos.length === 0);
 		this.toggleAllCheckbox.classList.toggle('hidden', this.todos.length === 0);
 		this.toggleAllLabel.classList.toggle('hidden', this.todos.length === 0);
