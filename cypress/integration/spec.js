@@ -4,8 +4,6 @@
  */
 import { createTodoCommands } from '../command';
 
-const title = `TodoMVC - capsid`;
-
 // checks that local storage has an item with given text
 const checkTodosInLocalStorage = (presentText, force) => {
   cy.log(`Looking for "${presentText}" in localStorage`);
@@ -138,7 +136,7 @@ const checkNumberOfCompletedTodosInLocalStorage = (n) => {
     });
 };
 
-describe(title, function () {
+describe('TodoMVC of Capsid.js', function () {
   // setup these constants to match what TodoMVC does
   let TODO_ITEM_ONE = 'buy some cheese';
   let TODO_ITEM_TWO = 'feed the cat';
@@ -305,6 +303,7 @@ describe(title, function () {
       // that it has class='new-todo'
       //
       // http://on.cypress.io/focused
+      cy.log(`useIds=${useIds}`);
       if (useIds) {
         cy.focused().should('have.id', 'new-todo');
       } else {
@@ -541,8 +540,7 @@ describe(title, function () {
         .should('have.value', TODO_ITEM_TWO)
         // clear + type text + enter key
         .clear()
-        .type('buy some sausages{enter}')
-        .then(safeBlur);
+        .type('buy some sausages{enter}');
 
       // explicitly assert about the text value
       visibleTodos().eq(0).should('contain', TODO_ITEM_ONE);
@@ -599,8 +597,7 @@ describe(title, function () {
       cy.get(selectors.todoItems)
         .eq(1)
         .find('.edit')
-        .type('{selectall}{backspace}    buy some sausages    {enter}')
-        .then(safeBlur);
+        .type('{selectall}{backspace}    buy some sausages    {enter}');
 
       visibleTodos().eq(0).should('contain', TODO_ITEM_ONE);
       visibleTodos().eq(1).should('contain', 'buy some sausages');
@@ -611,12 +608,7 @@ describe(title, function () {
     it('should remove the item if an empty text string was entered', function () {
       cy.get('@todos').eq(1).find('label').dblclick();
 
-      cy.get(selectors.todoItems)
-        .eq(1)
-        .find('.edit')
-        .clear()
-        .type('{enter}')
-        .then(safeBlur);
+      cy.get(selectors.todoItems).eq(1).find('.edit').clear().type('{enter}');
 
       visibleTodos().should('have.length', 2);
       checkNumberOfTodosInLocalStorage(2);
