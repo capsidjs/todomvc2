@@ -299,16 +299,7 @@ describe('TodoMVC of Capsid.js', function () {
 
   context('When page is initially opened', function () {
     it('should focus on the todo input field', function () {
-      // get the currently focused element and assert
-      // that it has class='new-todo'
-      //
-      // http://on.cypress.io/focused
-      cy.log(`useIds=${useIds}`);
-      if (useIds) {
-        cy.focused().should('have.id', 'new-todo');
-      } else {
-        cy.focused().should('have.class', 'new-todo');
-      }
+      cy.focused().should('have.class', 'new-todo');
     });
   });
 
