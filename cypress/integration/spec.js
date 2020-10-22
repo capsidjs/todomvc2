@@ -184,7 +184,7 @@ describe('TodoMVC of Capsid.js', function () {
 
   const checkItemSaved = () => {
     cy.wrap(localStorageSetItem, { log: false }).should('have.been.called');
-    cy.wrap(localStorageSetItem, { log: false }).invoke('reset');
+    cy.wrap(localStorageSetItem, { log: false }).invoke('resetHistory');
   };
 
   let currentTestId;

@@ -59,6 +59,7 @@ class TodoApp {
   @emits('update-todo')
   __mount__() {
     this.onChangeFilter();
+    this.newTodoInput.focus();
   }
 
   @on('keypress', { at: '.new-todo' })
