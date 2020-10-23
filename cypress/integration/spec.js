@@ -4,136 +4,120 @@
  */
 import { createTodoCommands } from '../command';
 
+const delay = (n) =>
+  new Promise((resolve, _) => setTimeout(() => resolve(), n));
+
 // checks that local storage has an item with given text
-const checkTodosInLocalStorage = (presentText, force) => {
+const checkTodosInLocalStorage = async (presentText, force) => {
   cy.log(`Looking for "${presentText}" in localStorage`);
 
-  return cy
-    .window()
-    .its('localStorage')
-    .then((storage) => {
-      return new Cypress.Promise((resolve, reject) => {
-        const checkItems = () => {
-          if (storage.length < 1) {
-            return setTimeout(checkItems, 0);
-          }
-          if (
-            Object.keys(storage).some((key) => {
-              return storage.getItem(key).includes(presentText);
-            })
-          ) {
-            return resolve();
-          }
-          setTimeout(checkItems, 0);
-        };
-        checkItems();
-      });
-    });
+  const storage = cy.window().its('localStorage');
+
+  return new Cypress.Promise((resolve, reject) => {
+    const checkItems = () => {
+      if (storage.length < 1) {
+        return setTimeout(checkItems, 0);
+      }
+      if (
+        Object.keys(storage).some((key) =>
+          storage.getItem(key).includes(presentText)
+        )
+      ) {
+        return resolve();
+      }
+      setTimeout(checkItems, 0);
+    };
+    checkItems();
+  });
 };
 
 const checkCompletedKeywordInLocalStorage = () => {
   cy.log(`Looking for any completed items in localStorage`);
 
   const variants = ['complete', 'isComplete'];
+  const sotrage = cy.window().its('localStorage');
 
-  return cy
-    .window()
-    .its('localStorage')
-    .then((storage) => {
-      return new Cypress.Promise((resolve, reject) => {
-        const checkItems = () => {
-          if (storage.length < 1) {
-            return setTimeout(checkItems, 0);
-          }
-          if (
-            Object.keys(storage).some((key) => {
-              const text = storage.getItem(key);
-              return variants.some((variant) => text.includes(variant));
-            })
-          ) {
-            return resolve();
-          }
-          setTimeout(checkItems, 0);
-        };
-        checkItems();
-      });
-    });
+  return new Cypress.Promise((resolve, reject) => {
+    const checkItems = () => {
+      if (storage.length < 1) {
+        return setTimeout(checkItems, 0);
+      }
+      if (
+        Object.keys(storage).some((key) => {
+          const text = storage.getItem(key);
+          return variants.some((variant) => text.includes(variant));
+        })
+      ) {
+        return resolve();
+      }
+      setTimeout(checkItems, 0);
+    };
+    checkItems();
+  });
 };
 
 const checkNumberOfTodosInLocalStorage = (n) => {
   cy.log(`localStorage should have ${n} todo items`);
 
-  return cy
-    .window()
-    .its('localStorage')
-    .then((storage) => {
-      return new Cypress.Promise((resolve, reject) => {
-        const checkItems = () => {
-          if (storage.length < 1) {
-            return setTimeout(checkItems, 0);
+  const storage = cy.window().its('localStorage');
+
+  return new Cypress.Promise((resolve, reject) => {
+    const checkItems = () => {
+      if (storage.length < 1) {
+        return setTimeout(checkItems, 0);
+      }
+      if (
+        Object.keys(storage).some((key) => {
+          const text = storage.getItem(key);
+          // assuming it is an array
+          try {
+            const items = JSON.parse(text);
+            return items.length === n;
+          } catch (e) {
+            // ignore
+            return;
           }
-          if (
-            Object.keys(storage).some((key) => {
-              const text = storage.getItem(key);
-              // assuming it is an array
-              try {
-                const items = JSON.parse(text);
-                return items.length === n;
-              } catch (e) {
-                // ignore
-                return;
-              }
-            })
-          ) {
-            return resolve();
-          }
-          setTimeout(checkItems, 0);
-        };
-        checkItems();
-      });
-    });
+        })
+      ) {
+        return resolve();
+      }
+      setTimeout(checkItems, 0);
+    };
+    checkItems();
+  });
 };
 
 const checkNumberOfCompletedTodosInLocalStorage = (n) => {
   cy.log(`Looking for "${n}" completed items in localStorage`);
 
-  return cy
-    .window()
-    .its('localStorage')
-    .then((storage) => {
-      return new Cypress.Promise((resolve, reject) => {
-        const checkItems = () => {
-          if (storage.length < 1) {
-            return setTimeout(checkItems, 0);
+  const storage = cy.window().its('localStorage');
+
+  return new Cypress.Promise((resolve, reject) => {
+    const checkItems = () => {
+      if (storage.length < 1) {
+        return setTimeout(checkItems, 0);
+      }
+      if (
+        Object.keys(storage).some((key) => {
+          const text = storage.getItem(key);
+          // assuming it is an array
+          try {
+            const items = JSON.parse(text);
+            if (items.length < n) {
+              return;
+            }
+            return Cypress._.filter(items, { completed: true }).length === n;
+          } catch (e) {
+            return;
           }
-          if (
-            Object.keys(storage).some((key) => {
-              const text = storage.getItem(key);
-              // assuming it is an array
-              try {
-                const items = JSON.parse(text);
-                if (items.length < n) {
-                  return;
-                }
-                // MOST apps use "completed" property to mark task
-                // canjs uses "complete" property, 😡
-                // scalajs-react uses "isCompleted"
-                const completed = Cypress._.filter(items, { completed: true })
-                  .concat(Cypress._.filter(items, { complete: true }))
-                  .concat(Cypress._.filter(items, { isCompleted: true }));
-                return completed.length === n;
-              } catch (e) {
-                return;
-              }
-            })
-          ) {
-            return resolve();
-          }
-          setTimeout(checkItems, 0);
-        };
-        checkItems();
-      });
-    });
+        })
+      ) {
+        return resolve();
+      }
+      setTimeout(checkItems, 0);
+    };
+    checkItems();
+  });
 };
 
 describe('TodoMVC of Capsid.js', function () {
@@ -142,24 +126,7 @@ describe('TodoMVC of Capsid.js', function () {
   let TODO_ITEM_TWO = 'feed the cat';
   let TODO_ITEM_THREE = 'book a doctors appointment';
 
-  // different selectors depending on the app - some use ids, some use classes
-  let useIds;
-  let selectors;
-
-  const idSelectors = {
-    newTodo: '#new-todo',
-    todoList: '#todo-list',
-    todoItems: '#todo-list li',
-    todoItemsVisible: '#todo-list li:visible',
-    count: 'span#todo-count',
-    main: '#main',
-    footer: '#footer',
-    toggleAll: '#toggle-all',
-    clearCompleted: '#clear-completed',
-    filters: '#filters',
-    filterItems: '#filters li a',
-  };
-  const classSelectors = {
+  const selectors = {
     newTodo: '.new-todo',
     todoList: '.todo-list',
     todoItems: '.todo-list li',
@@ -171,10 +138,6 @@ describe('TodoMVC of Capsid.js', function () {
     clearCompleted: '.clear-completed',
     filters: '.filters',
     filterItems: '.filters li a',
-  };
-  const setSelectors = (ids) => {
-    useIds = ids;
-    selectors = useIds ? idSelectors : classSelectors;
   };
 
   // reliably works in backbone app and other apps by using single selector
@@ -257,31 +220,12 @@ describe('TodoMVC of Capsid.js', function () {
       });
     });
 
-    // how to determine if we need to use ids or classes?
     // it is painful to have both types of elements in the
     // same tests - because our assertions often use `.should('have.class', ...)`
     cy.contains('h1', 'todos').should('be.visible');
     cy.document().then((doc) => {
-      if (
-        doc.querySelector('input#new-todo') &&
-        doc.querySelector('input.new-todo')
-      ) {
-        throw new Error(
-          'Cannot determine what kind of selectors this app uses. Add it to usesIDSelectors.'
-        );
-      } else if (doc.querySelector('input#new-todo')) {
-        cy.log('app uses ID selectors');
-        setSelectors(true);
-        createTodoCommands(true);
-      } else if (doc.querySelector('input.new-todo')) {
-        cy.log('app uses class selectors');
-        setSelectors(false);
-        createTodoCommands(false);
-      } else {
-        throw new Error(
-          'Cannot determine what kind of selectors this app uses.'
-        );
-      }
+      cy.log('app uses class selectors');
+      createTodoCommands(false);
     });
   });
 

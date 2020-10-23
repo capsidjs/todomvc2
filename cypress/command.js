@@ -1,9 +1,9 @@
-export function createTodoCommands(idSelectors) {
-  const newTodoSelector = idSelectors ? '#new-todo' : '.new-todo';
-  const todoListSelector = idSelectors ? '#todo-list' : '.todo-list';
-  const todoItemsSelector = idSelectors ? '#todo-list li' : '.todo-list li';
+export function createTodoCommands() {
+  const newTodoSelector = '.new-todo';
+  const todoListSelector = '.todo-list';
+  const todoItemsSelector = '.todo-list li';
 
-  Cypress.Commands.add('createDefaultTodos', function () {
+  Cypress.Commands.add('createDefaultTodos', () => {
     let TODO_ITEM_ONE = 'buy some cheese';
     let TODO_ITEM_TWO = 'feed the cat';
     let TODO_ITEM_THREE = 'book a doctors appointment';
@@ -42,7 +42,7 @@ export function createTodoCommands(idSelectors) {
     cy.get(todoItemsSelector, { log: false }).should('have.length', 3);
 
     const combinedSelector = todoItemsSelector + ':visible';
-    cy.get(combinedSelector, { log: false }).then(function ($listItems) {
+    cy.get(combinedSelector, { log: false }).then(($listItems) => {
       // once we're done inserting each of the todos
       // above we want to return the .todo-list li's
       // to allow for further chaining and then
@@ -53,7 +53,7 @@ export function createTodoCommands(idSelectors) {
     });
   });
 
-  Cypress.Commands.add('createTodo', function (todo) {
+  Cypress.Commands.add('createTodo', (todo) => {
     let cmd = Cypress.log({
       name: 'create todo',
       message: todo,
