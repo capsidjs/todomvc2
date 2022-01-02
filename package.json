@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/capsidjs/todomvc2#readme",
   "dependencies": {
-    "capsid": "^1.7.0",
+    "capsid": "^1.8.0",
     "todomvc-app-css": "^2.3.0",
     "todomvc-common": "^1.0.5"
   },
